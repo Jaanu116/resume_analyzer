@@ -3,8 +3,9 @@ import pdfplumber
 import tempfile
 
 from app.utils.skills import extract_skills
-from app.utils.score import calculate_score
+from app.utils.ats import calculate_ats
 from app.utils.sections import detect_sections
+from app.utils.missing_skills import get_missing_skills
 router = APIRouter()
 
 
@@ -34,12 +35,15 @@ async def upload_resume(file: UploadFile = File(...)):
 
     skills = extract_skills(text)
     sections = detect_sections(text)
-    ats_score = calculate_score(skills, sections)
+    missing_skills = get_missing_skills(skills)
+    ats_result = calculate_ats(skills, sections, text)
 
-    return {
-        "filename": file.filename,
-        "ats_score": ats_score,
-        "skills": skills,
-        "sections": sections,
-        "preview": text[:500]
-    }
+    return{
+      "filename":file.filename,
+      "ats_score":ats_result["score"],
+      "score_breakdown":ats_result["breakdown"],
+      "skills":skills,
+      "missing_skills": missing_skills,
+      "sections":sections,
+      "preview":text[:500]
+}
