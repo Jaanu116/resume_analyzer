@@ -3,7 +3,7 @@ import pdfplumber
 import tempfile
 
 from app.utils.skills import extract_skills
-
+from app.utils.score import calculate_score
 router = APIRouter()
 
 
@@ -32,9 +32,11 @@ async def upload_resume(file: UploadFile = File(...)):
 
 
     skills = extract_skills(text)
+    ats_score = calculate_score(skills)
 
     return {
         "filename": file.filename,
+        "ats_score": ats_score,
         "skills": skills,
         "preview": text[:500]
     }
