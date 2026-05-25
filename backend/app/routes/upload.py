@@ -2,12 +2,14 @@ from fastapi import APIRouter, UploadFile, File
 import pdfplumber
 import tempfile
 
+from app.utils.skills import extract_skills
+
 router = APIRouter()
+
 
 @router.post("/upload")
 async def upload_resume(file: UploadFile = File(...)):
 
-    # create temporary file
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp:
 
         content = await file.read()
@@ -17,21 +19,22 @@ async def upload_resume(file: UploadFile = File(...)):
         temp_path = temp.name
 
 
-    text=""
+    text = ""
 
     with pdfplumber.open(temp_path) as pdf:
 
         for page in pdf.pages:
 
-            page_text=page.extract_text()
+            page_text = page.extract_text()
 
             if page_text:
                 text += page_text
 
 
+    skills = extract_skills(text)
+
     return {
-
-        "filename":file.filename,
-
-        "preview":text[:500]
+        "filename": file.filename,
+        "skills": skills,
+        "preview": text[:500]
     }
