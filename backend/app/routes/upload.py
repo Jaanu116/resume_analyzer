@@ -34,7 +34,7 @@ async def upload_resume(file: UploadFile = File(...)):
 
     skills = extract_skills(text)
     sections = detect_sections(text)
-    ats_score = calculate_score(skills)
+    ats_score = calculate_score(skills, sections)
 
     return {
         "filename": file.filename,
